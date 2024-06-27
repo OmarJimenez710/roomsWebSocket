@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mi aplicación con sockets</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <!-- <script src="main.js"></script> -->
+  </head>
+  <body>
+    <script type="text/javascript">
+      var socket = io(); //se genera la conexion
+
+      $(function () {
+        $("form").submit(() => {
+          var mensaje = $("#msj").val();
+
+          socket.emit("message", mensaje);
+          $("#msj").val("").focus();
+          return false;
+        });
+
+        $("#channel").change(() => {
+          //emitimos este cambio de canal al seocket
+          socket.emit('change channel', $("#channel").val());
+        });
+
+
+      });
+
+      //el evento que genero el server, lo escucha el front
+      //id --> parametro que envia el server
+      socket.on("message", (msj, id) => {
+        $("#message")
+          .append("<li>")
+          .text(id + ": " + msj);
+
+        //alert('bye usuario: ' + id);
+      });
+
+
+      //escuchamos el cambio de canal
+      socket.on('change channel', (newChannel) => {
+        $("#message").html('').append($("<li>").text(`System: Bienvenido al canal ${newChannel}`));
+      });
+
+
+
+    </script>
+
+    <h1>My App</h1>
+
+    <ul id="message"></ul>
+
+    <div id="controls">
+      <form action="">
+        <select name="channel" id="channel">
+          <option value="channel-a">channel-a</option>
+          <option value="channel-b">channel-b</option>
+        </select>
+
+        <input type="text" id="msj" placeholder="mensaje" />
+        <input type="submit" value="Enviar" />
+      </form>
+    </div>
+  </body>
+</html>
